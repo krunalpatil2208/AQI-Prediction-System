@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AQI Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="predict-body">
+    <div id="loader">
+    <div class="spinner"></div>
+</div>
+<div class="navbar">
+    <h2 class="logo">🌍 AQI System</h2>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/predict_page">Predict</a>
+        <a href="/visualize">Analytics</a>
+    </div>
+</div>
+<div class="predict-container">
+
+    <h1 class="title">🔮 AQI Prediction</h1>
+    <p class="subtitle">Predict Future Air Quality using AI</p>
+
+    <form action="/predict" method="post" class="predict-form">
+
+        <!-- STATE -->
+        <div class="input-group">
+            <label>State</label>
+            <select id="state" name="state" onchange="loadAreas()" required>
+                <option value="">Select State</option>
+                {% for s in states %}
+                <option value="{{ s }}">{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- AREA -->
+        <div class="input-group">
+            <label>Area</label>
+            <select id="area" name="area" required>
+                <option value="">Select Area</option>
+            </select>
+        </div>
+
+        <!-- YEAR -->
+        <div class="input-group">
+            <label>Future Year</label>
+            <input type="number" name="year" min="2026" max="2028" placeholder="Enter Year (2026 to 2028 )" required>
+        </div>
+
+        <!-- MONTH -->
+        <div class="input-group">
+            <label>Month</label>
+            <input type="number" name="month" min="1" max="12" placeholder="1 - 12" required>
+        </div>
+
+        <button type="submit" class="btn-predict">Predict AQI</button>
+
+    </form>
+
+    <br>
+
+    <a href="/" class="back-btn">⬅ Back to Home</a>
+
+</div>
+
+<!-- JS -->
+<script>
+function loadAreas() {
+    let state = document.getElementById("state").value;
+
+    fetch("/get_areas/" + state)
+    .then(res => res.json())
+    .then(data => {
+        let dropdown = document.getElementById("area");
+        dropdown.innerHTML = "<option value=''>Select Area</option>";
+
+        data.forEach(a => {
+            dropdown.innerHTML += `<option value="${a}">${a}</option>`;
+        });
+    });
+}
+</script>
+<script>
+window.addEventListener("load", function(){
+    document.getElementById("loader").style.display = "none";
+});
+</script>
+</body>
+</html>

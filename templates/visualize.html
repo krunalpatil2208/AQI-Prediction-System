@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AQI Analytics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body class="analytics-body">
+
+<!-- LOADER -->
+<div id="loader">
+    <div class="spinner"></div>
+</div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <h2 class="logo">🌍 AQI System</h2>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/predict_page">Predict</a>
+        <a href="/visualize">Analytics</a>
+    </div>
+</div>
+
+<div class="analytics-container">
+
+    <h1 class="analytics-title">📊 AQI Analytics Dashboard</h1>
+
+    <!-- YEAR FORM -->
+    <form method="POST" class="year-form">
+        <select name="year" required>
+            <option value="">Select Year</option>
+            {% for y in range(2015, 2026) %}
+            <option value="{{ y }}">{{ y }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Analyze</button>
+    </form> 
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    {% if top_areas is defined %}
+
+    <!-- GRID -->
+    <div class="grid">
+
+        <!-- TOP AREAS -->
+        <div class="analytics-card zoom-card">
+            <h3> Top Polluted Areas</h3>
+            <canvas id="topChart"></canvas>
+        </div>
+
+        <!-- TOP STATES -->
+        <div class="analytics-card zoom-card">
+            <h3> Top Polluted States</h3>
+            <canvas id="stateChart"></canvas>
+        </div>
+
+        <!-- CATEGORY PIE -->
+        <div class="analytics-card zoom-card">
+            <h3> AQI Category Distribution</h3>
+            <canvas id="pieChart"></canvas>
+        </div>
+
+        <!-- MONTH TREND -->
+        <div class="analytics-card zoom-card">
+            <h3> Monthly AQI Trend</h3>
+            <canvas id="monthChart"></canvas>
+        </div>
+
+        <!-- HEATMAP -->
+       <div class="heatmap-wrapper">
+         <h3> State vs Month Heatmap</h3>
+        {{ heatmap | safe }}
+        </div>
+
+        
+
+    </div>
+
+     
+
+    {% endif %}
+
+    <br>
+    <a href="/" class="back-btn">⬅ Back to Home</a>
+
+</div>
+
+<!-- ================= JS ================= -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+{% if top_areas %}
+
+// TOP AREAS
+new Chart(document.getElementById('topChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ ((top_areas.keys() | list) if top_areas else []) | tojson }},
+        datasets: [{
+            label: 'AQI',
+            data: {{ ((top_areas.values() | list) if top_areas else []) | tojson }}
+        }]
+    }
+});
+
+// TOP STATES
+new Chart(document.getElementById('stateChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ ((top_states.keys() | list) if top_states else []) | tojson }},
+        datasets: [{
+            label: 'AQI',
+            data: {{ ((top_states.values() | list) if top_states else []) | tojson }}
+        }]
+    }
+});
+
+// PIE
+new Chart(document.getElementById('pieChart'), {
+    type: 'pie',
+    data: {
+        labels: {{ ((categories.keys() | list) if categories else []) | tojson }},
+        datasets: [{
+            data: {{ ((categories.values() | list) if categories else []) | tojson }},
+            backgroundColor: [
+                '#00e400','#0099cc','#ffde33',
+                '#ff9933','#cc0033','#660099'
+            ]
+        }]
+    }
+});
+
+// MONTH TREND
+new Chart(document.getElementById('monthChart'), {
+    type: 'line',
+    data: {
+        labels: {{ ((months.keys() | list) if months else []) | tojson }},
+        datasets: [{
+            label: 'AQI',
+            data: {{ ((months.values() | list) if months else []) | tojson }}
+        }]
+    }
+});
+
+{% endif %}
+
+});
+</script>
+
+<!-- LOADER -->
+<script>
+window.addEventListener("load", function(){
+    document.getElementById("loader").style.display = "none";
+});
+</script>
+
+</body>
+</html>

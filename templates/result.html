@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AQI Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="result-body">
+    
+<div id="loader">
+    <div class="spinner"></div>
+</div>
+<div class="navbar">
+    <h2 class="logo">🌍 AQI System</h2>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/predict_page">Predict</a>
+        <a href="/visualize">Analytics</a>
+    </div>
+</div>
+<div class="result-container">
+
+    <div class="result-wrapper">
+
+    <!-- TOP SECTION -->
+    <div class="result-top">
+
+        <!-- LEFT: AQI CARD -->
+        <div class="aqi-card" style="background: {{ color }}">
+            <h1>{{ aqi }}</h1>
+            <p>Air Quality Index</p>
+            <h2>{{ category }}</h2>
+        </div>
+
+        <!-- RIGHT: GAUGE -->
+        <div class="gauge-box">
+            <canvas id="aqiMeter"></canvas>
+        </div>
+
+    </div>
+    <!-- HEALTH MESSAGE -->
+    <div class="health-box">
+        {% if category == "Good" %}
+            🌿 Air quality is excellent. Enjoy outdoor activities!
+        {% elif category == "Satisfactory" %}
+            🙂 Acceptable air quality. Minor breathing discomfort possible.
+        {% elif category == "Moderate" %}
+            😷 Sensitive groups may experience discomfort.
+        {% elif category == "Poor" %}
+            ⚠️ Breathing discomfort to most people.
+        {% elif category == "Very Poor" %}
+            🚨 Serious health effects. Avoid outdoor activity.
+        {% else %}
+            ☠️ Severe conditions. Stay indoors!
+        {% endif %}
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="btn-group">
+        <a href="/predict_page" class="btn-back">🔄 Predict Again</a>
+        <a href="/" class="btn-home">🏠 Home</a>
+    </div>
+
+</div>
+<script>
+window.addEventListener("load", function(){
+    document.getElementById("loader").style.display = "none";
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const aqi = {{ aqi }};
+
+    const data = {
+        datasets: [{
+            data: [50, 50, 100, 100, 100, 100],
+            backgroundColor: [
+                "#00e400",
+                "#0099cc",
+                "#ffde33",
+                "#ff9933",
+                "#cc0033",
+                "#660099"
+            ],
+            borderWidth: 0
+        }]
+    };
+
+    const needlePlugin = {
+        id: 'needle',
+        afterDraw(chart) {
+            const {ctx} = chart;
+            const centerX = chart.getDatasetMeta(0).data[0].x;
+            const centerY = chart.getDatasetMeta(0).data[0].y;
+
+            let angle = Math.PI + (aqi / 500) * Math.PI;
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(angle);
+
+            ctx.beginPath();
+            ctx.moveTo(0, -5);
+            ctx.lineTo(150, 0);
+            ctx.lineTo(0, 5);
+            ctx.fillStyle = "white";
+            ctx.fill();
+
+            ctx.restore();
+        }
+    };
+
+    new Chart(document.getElementById("aqiMeter"), {
+        type: 'doughnut',
+        data: data,
+        options: {
+            rotation: -90,
+            circumference: 180,
+            cutout: "70%",
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            }
+        },
+        plugins: [needlePlugin]
+    });
+
+});
+</script>
+</body>
+</html>

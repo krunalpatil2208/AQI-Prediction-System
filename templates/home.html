@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AQI System</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body class="landing-body">
+    <div id="loader">
+      <div class="spinner"></div>
+    </div>
+    <div class="navbar">
+      <h2 class="logo"> AQI System</h2>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/predict_page">Predict</a>
+        <a href="/visualize">Analytics</a>
+      </div>
+    </div>
+    <div class="landing-container">
+      <h1 class="main-title">
+  AQI <span class="highlight">Intelligence</span> System
+</h1>
+
+     <p class="subtitle">
+  Predict & Analyze <span class="highlight2">Air Quality</span> with AI
+</p>
+
+      <div class="card-container">
+        <a href="/predict_page" class="card">
+          <h2> Predict AQI</h2>
+          <p>Forecast future AQI using historical data</p>
+        </a>        
+
+        <a href="/visualize" class="card">
+          <h2> Analytics Dashboard</h2>
+          <p>Explore pollution trends & insights</p>
+        </a>
+      </div>
+    </div>
+    <script>
+      window.addEventListener("load", function () {
+        document.getElementById("loader").style.display = "none";
+      });
+    </script>
+  </body>
+</html>
